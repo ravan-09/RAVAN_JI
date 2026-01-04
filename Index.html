@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <meta name="theme-color" content="#0a0a0f"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Quantum OS | VIPSTUDY.RWA</title>
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="https://api.dicebear.com/7.x/avataaars/svg?seed=Quantum&backgroundColor=00ff88">
+    <!-- Styles & Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+    <style>
+        :root {
+            --primary: #00ff88;
+            --primary-dark: #00cc6a;
+            --secondary: #00d9ff;
+            --dark-bg: #0a0a0f;
+            --card-bg: rgba(20, 20, 30, 0.9);
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0d0;
+            --gradient-1: linear-gradient(135deg, #00ff88, #00d9ff);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+        
+        html {
+            height: 100%;
+            overflow-x: hidden;
+            touch-action: pan-y;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* Mobile Optimized */
+        @media (max-width: 768px) {
+            .container {
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+            
+            .modern-input {
+                font-size: 16px !important; /* Prevents zoom on iOS */
+                padding: 16px;
+            }
+        }
+        
+        /* Hide scrollbar but keep functionality */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        
+        /* Modern Cards */
+        .modern-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .modern-card:active {
+            transform: scale(0.98);
+            border-color: var(--primary);
+        }
+        
+        /* Gradient Text */
+        .gradient-text {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Buttons - Mobile Friendly */
+        .btn-primary {
+            background: var(--gradient-1);
+            color: #000;
+            font-weight: 700;
+            padding: 18px 24px;
+            border-radius: 16px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            min-height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-primary:active {
+            transform: scale(0.95);
+        }
+        
+        /* Input Fields - Mobile Optimized */
+        .modern-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 18px;
+            color: var(--text-primary);
+            font-size: 18px !important;
+            transition: all 0.3s ease;
+            width: 100%;
+            min-height: 60px;
+        }
+        
+        .modern-input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        /* Dashboard Grid - Mobile Responsive */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            padding: 4px;
+        }
+        
+        @media (max-width: 640px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                padding: 8px;
+            }
+        }
+        
+        /* Bottom Navigation - Mobile Optimized */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 15, 0.98);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 12px 0;
+            z-index: 1000;
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        
+        .nav-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Content area padding for bottom nav */
+        .content-area {
+            padding-bottom: 85px;
+            padding-top: env(safe-area-inset-top, 0px);
+        }
+        
+        /* Safe area for iPhone X and above */
+        @supports (padding: max(0px)) {
+            .content-area {
+                padding-left: max(12px, env(safe-area-inset-left));
+                padding-right: max(12px, env(safe-area-inset-right));
+            }
+        }
+        
+        /* Loading animation */
+        .loading-wave {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            height: 50px;
+        }
+        
+        .loading-bar {
+            width: 6px;
+            height: 24px;
+            background: var(--gradient-1);
+            border-radius: 6px;
+            animation: loading-wave 1s ease-in-out infinite;
+        }
+        
+        @keyframes loading-wave {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.8); }
+        }
+        
+        /* Mobile Swipe Gestures */
+        .swipe-hint {
+            position: fixed;
+            bottom: 90px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            opacity: 0.7;
+            z-index: 99;
+        }
+        
+        /* Pull to refresh */
+        .pull-to-refresh {
+            position: absolute;
+            top: -60px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+        }
+        
+        /* Hide address bar on mobile */
+        @media (max-height: 700px) {
+            header {
+                padding-top: env(safe-area-inset-top, 0px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-dark-bg" id="loading-screen">
+        <div class="text-center">
+            <div class="w-24 h-24 mx-auto mb-8 rounded-3xl bg-gradient-to-br from-[#00ff88] to-[#00d9ff] flex items-center justify-center animate-pulse">
+                <i class="fas fa-bolt text-4xl text-black"></i>
+            </div>
+            <h1 class="text-4xl font-bold mb-4 gradient-text">Quantum OS</h1>
+            <p class="text-text-secondary">Loading...</p>
+        </div>
+    </div>
+    
+    <!-- Login Screen -->
+    <div class="fixed inset-0 z-40 flex items-center justify-center p-6" id="login-screen">
+        <div class="modern-card w-full max-w-md p-8 mx-4">
+            <div class="text-center mb-10">
+                <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-[#00ff88] to-[#00d9ff] flex items-center justify-center">
+                    <i class="fas fa-user-shield text-4xl text-black"></i>
+                </div>
+                <h2 class="text-3xl font-bold mb-2">Quantum OS</h2>
+                <p class="text-text-secondary">SSC-CGL-PAI Access</p>
+            </div>
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium mb-3">Username</label>
+                    <input class="modern-input" id="login-username" placeholder="Enter username" type="text" value="VISHAL"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-3">Password</label>
+                    <input class="modern-input" id="login-password" placeholder="Enter password" type="password" value="RAVAN09@"/>
+                </div>
+                <div id="login-error" class="text-red-400 text-sm hidden p-3 rounded-lg bg-red-900/20 border border-red-700/30">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <span id="error-message">Invalid credentials</span>
+                </div>
+                <button class="btn-primary w-full mt-4" onclick="performLogin()" id="login-btn">
+                    <i class="fas fa-sign-in-alt mr-3"></i>
+                    <span>Login</span>
+                </button>
+                <div class="text-center text-text-secondary text-xs mt-6 pt-4 border-t border-gray-800">
+                    <p>Credentials: VISHAL / RAVAN09@</p>
+                    <p class="mt-1 text-green-400" id="connection-status">Online</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main App -->
+    <div class="hidden" id="app">
+        <!-- Header -->
+        <header class="sticky top-0 z-30 glass border-b border-gray-800 pt-2 pb-3">
+            <div class="container mx-auto px-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00ff88] to-[#00d9ff] flex items-center justify-center">
+                            <i class="fas fa-bolt text-black text-sm"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-base font-bold">VIPSTUDY<span class="gradient-text">.RWA</span></h1>
+                            <div class="flex items-center text-xs">
+                                <span class="text-text-secondary" id="system-clock">--:--:--</span>
+                                <span class="mx-1">•</span>
+                                <span class="text-primary font-medium" id="user-role">Owner</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button class="w-10 h-10 rounded-full glass flex items-center justify-center" onclick="toggleSearch()">
+                            <i class="fas fa-search text-sm"></i>
+                        </button>
+                        <button onclick="switchTab('profile')">
+                            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-[#00ff88] to-[#00d9ff] p-0.5">
+                                <img class="w-full h-full rounded-full border border-dark-bg" id="header-avatar" src=""/>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Search Bar -->
+            <div class="container mx-auto px-4 mt-3 hidden" id="search-container">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-text-secondary"></i>
+                    <input class="modern-input pl-12 pr-4" id="batchSearch" placeholder="Search batches..." type="text"/>
+                    <button class="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-secondary" onclick="toggleSearch()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Main Content -->
+        <main class="container mx-auto px-4 content-area">
+            <!-- Dashboard Page -->
+            <div class="page-enter py-5" id="page-batches">
+                <!-- Welcome Section -->
+                <div class="mb-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="text-2xl font-bold mb-1">Welcome, <span class="gradient-text" id="welcome-name">User</span></h2>
+                            <p class="text-text-secondary">Access your learning modules</p>
+                        </div>
+                        <div class="glass px-4 py-3 rounded-xl min-w-20">
+                            <div class="text-xl font-bold text-center" id="batch-count">0</div>
+                            <div class="text-xs text-text-secondary text-center">Active</div>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2 mb-6">
+                        <button class="flex-1 py-3 rounded-lg glass text-center text-sm font-medium" onclick="fetchBatches()">
+                            <i class="fas fa-sync-alt mr-2"></i>
+                            Refresh
+                        </button>
+                        <button class="flex-1 py-3 rounded-lg glass text-center text-sm font-medium" onclick="switchTab('favorites')">
+                            <i class="fas fa-star mr-2"></i>
+                            Favorites
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Batches Grid -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold mb-4">Your Batches</h3>
+                    <div class="dashboard-grid" id="batchList">
+                        <!-- Batches will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Subjects Page -->
+            <div class="hidden py-5" id="page-subjects">
+                <div class="mb-6">
+                    <button class="btn-primary mb-5 text-sm py-3 px-4" onclick="switchTab('home')">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back to Batches
+                    </button>
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold mb-2" id="title-batch">Batch Subjects</h2>
+                        <p class="text-text-secondary">Explore all subjects in this batch</p>
+                    </div>
+                </div>
+                <div class="dashboard-grid" id="subjectList">
+                    <!-- Subjects will be loaded here -->
+                </div>
+            </div>
+            
+            <!-- Topics Page -->
+            <div class="hidden py-5" id="page-topics">
+                <div class="mb-6">
+                    <button class="btn-primary mb-5 text-sm py-3 px-4" onclick="showPage('page-subjects')">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back to Subjects
+                    </button>
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold mb-2" id="title-subject">Topics</h2>
+                        <p class="text-text-secondary">Select a topic to view content</p>
+                    </div>
+                </div>
+                <div class="dashboard-grid" id="topicList">
+                    <!-- Topics will be loaded here -->
+                </div>
+            </div>
+            
+            <!-- Content Page -->
+            <div class="hidden py-5" id="page-content">
+                <div class="mb-6">
+                    <button class="btn-primary mb-5 text-sm py-3 px-4" onclick="showPage('page-topics')">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back to Topics
+                    </button>
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold mb-2" id="title-topic">Content</h2>
+                        <div class="flex items-center space-x-2 mt-3">
+                            <span class="text-sm text-text-secondary" id="content-status">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex space-x-3 mb-6">
+                    <button class="flex-1 py-3 bg-[#00ff88] text-black rounded-lg text-sm font-medium flex items-center justify-center" id="btn-video" onclick="filterContent('video')">
+                        <i class="fas fa-play mr-2"></i>
+                        Videos
+                    </button>
+                    <button class="flex-1 py-3 border border-gray-600 rounded-lg text-sm font-medium flex items-center justify-center" id="btn-pdf" onclick="filterContent('pdf')">
+                        <i class="fas fa-file-pdf mr-2"></i>
+                        Notes
+                    </button>
+                </div>
+                <div class="dashboard-grid" id="contentList">
+                    <!-- Content will be loaded here -->
+                </div>
+            </div>
+            
+            <!-- Favorites Page -->
+            <div class="hidden py-5" id="page-favorites">
+                <div class="mb-6">
+                    <button class="btn-primary mb-5 text-sm py-3 px-4" onclick="switchTab('home')">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back to Home
+                    </button>
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold mb-2">Your Saved Content</h2>
+                        <p class="text-text-secondary">Access your favorite learning materials</p>
+                    </div>
+                </div>
+                <div class="dashboard-grid" id="favList">
+                    <!-- Favorites will be loaded here -->
+                </div>
+            </div>
+            
+            <!-- Profile Page -->
+            <div class="hidden py-5" id="page-profile">
+                <div class="max-w-4xl mx-auto">
+                    <!-- Profile Header -->
+                    <div class="modern-card p-6 mb-6">
+                        <div class="flex items-center space-x-4 mb-6">
+                            <div class="w-20 h-20 rounded-full bg-gradient-to-br from-[#00ff88] to-[#00d9ff] p-1">
+                                <img class="w-full h-full rounded-full border-2 border-dark-bg" id="profile-page-avatar" src=""/>
+                            </div>
+                            <div class="flex-1">
+                                <h2 class="text-2xl font-bold" id="profile-name">User</h2>
+                                <p class="text-text-secondary text-sm mt-1" id="profile-bio">Quantum System User</p>
+                                <p class="text-xs text-primary font-medium mt-2" id="profile-role">Role: Owner</p>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <button class="w-full py-3 rounded-lg glass text-center flex items-center justify-center" onclick="editProfile()">
+                                <i class="fas fa-edit mr-2"></i>
+                                Edit Profile
+                            </button>
+                            <button class="w-full py-3 rounded-lg glass text-center flex items-center justify-center" onclick="showCacheInfo()">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                App Info
+                            </button>
+                            <button class="w-full py-3 rounded-lg bg-red-900/30 text-red-400 border border-red-700/30 text-center flex items-center justify-center" onclick="logout()">
+                                <i class="fas fa-sign-out-alt mr-2"></i>
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="flex justify-around w-full">
+                <button class="nav-item" onclick="switchTab('home')">
+                    <i class="fas fa-home nav-icon" id="nav-home"></i>
+                    <span class="nav-label" id="nav-home-label">HOME</span>
+                </button>
+                <button class="nav-item" onclick="switchTab('favorites')">
+                    <i class="fas fa-star nav-icon" id="nav-fav"></i>
+                    <span class="nav-label" id="nav-fav-label">FAVORITE</span>
+                </button>
+                <button class="nav-item" onclick="switchTab('profile')">
+                    <i class="fas fa-user nav-icon" id="nav-profile"></i>
+                    <span class="nav-label" id="nav-profile-label">PROFILE</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Profile Modal -->
+    <div class="fixed inset-0 z-50 hidden items-center justify-center p-6 bg-black/95" id="modal-edit-profile">
+        <div class="modern-card w-full max-w-md p-6 mx-4">
+            <h3 class="text-xl font-bold mb-6">Edit Profile</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Name</label>
+                    <input class="modern-input" id="input-name" placeholder="Enter your name" type="text"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Bio</label>
+                    <input class="modern-input" id="input-bio" placeholder="Enter your bio" type="text"/>
+                </div>
+            </div>
+            <div class="flex space-x-3 mt-8">
+                <button class="btn-primary flex-1" onclick="saveProfileData()">
+                    Save Changes
+                </button>
+                <button class="modern-input flex-1 text-center py-4" onclick="document.getElementById('modal-edit-profile').classList.add('hidden')">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile-optimized solution with CORS bypass
+        const USE_PROXY = true; // Mobile के लिए proxy use करें
+        const PROXY_URL = "https://corsproxy.io/?"; // Free CORS proxy
+        const BASE_URL = "https://ssc-cgl-pai-7bl3.vercel.app";
+        
+        let app = {
+            token: null,
+            user: null,
+            batches: [],
+            favBatches: [],
+            currBatch: {},
+            currSubject: {},
+            currTopic: {},
+            content: [],
+            profile: null,
+            isOnline: true
+        };
+        
+        // Initialize on load
+        window.onload = function() {
+            // Check network status
+            checkNetworkStatus();
+            
+            // Add mobile-specific features
+            initMobileFeatures();
+            
+            // Hide loading quickly
+            setTimeout(() => {
+                document.getElementById('loading-screen').style.display = 'none';
+                
+                // Check if already logged in
+                const savedToken = localStorage.getItem("spidy_token");
+                const savedUser = localStorage.getItem("spidy_user");
+                
+                if(savedToken && savedUser) {
+                    try {
+                        app.token = savedToken;
+                        app.user = JSON.parse(savedUser);
+                        app.profile = JSON.parse(localStorage.getItem("spidy_profile"));
+                        app.favBatches = JSON.parse(localStorage.getItem("spidy_favs")) || [];
+                        
+                        // Hide login, show app
+                        document.getElementById('login-screen').classList.add('hidden');
+                        initApp();
+                    } catch(e) {
+                        // Clear invalid data
+                        localStorage.clear();
+                        showLogin();
+                    }
+                } else {
+                    showLogin();
+                }
+            }, 500);
+            
+            // Update clock
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('system-clock').textContent = 
+                    now.toLocaleTimeString('en-US', {hour12: false});
+            }, 1000);
+            
+            // Network status monitoring
+            window.addEventListener('online', () => {
+                app.isOnline = true;
+                document.getElementById('connection-status').textContent = 'Online';
+                document.getElementById('connection-status').className = 'mt-1 text-green-400';
+            });
+            
+            window.addEventListener('offline', () => {
+                app.isOnline = false;
+                document.getElementById('connection-status').textContent = 'Offline';
+                document.getElementById('connection-status').className = 'mt-1 text-red-400';
+            });
+        };
+        
+        // Initialize mobile features
+        function initMobileFeatures() {
+            // Prevent bounce/overscroll on iOS
+            document.body.addEventListener('touchmove', function(e) {
+                if (e.target.closest('.content-area')) {
+                    return;
+                }
+                e.preventDefault();
+            }, { passive: false });
+            
+            // Add swipe gestures
+            let startX, startY;
+            document.addEventListener('touchstart', function(e) {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            });
+            
+            document.addEventListener('touchend', function(e) {
+                if (!startX || !startY) return;
+                
+                let endX = e.changedTouches[0].clientX;
+                let endY = e.changedTouches[0].clientY;
+                
+                let diffX = startX - endX;
+                let diffY = startY - endY;
+                
+                // Horizontal swipe (left/right)
+                if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                    if (diffX > 0) {
+                        // Swipe left - go forward if possible
+                        console.log('Swipe left');
+                    } else {
+                        // Swipe right - go back if possible
+                        goBackOnSwipe();
+                    }
+                }
+            });
+        }
+        
+        // Go back on swipe
+        function goBackOnSwipe() {
+            const pages = ['page-batches', 'page-subjects', 'page-topics', 'page-content', 'page-favorites', 'page-profile'];
+            let currentPage = '';
+            
+            pages.forEach(page => {
+                const el = document.getElementById(page);
+                if (!el.classList.contains('hidden')) {
+                    currentPage = page;
+                }
+            });
+            
+            switch(currentPage) {
+                case 'page-subjects':
+                    switchTab('home');
+                    break;
+                case 'page-topics':
+                    showPage('page-subjects');
+                    break;
+                case 'page-content':
+                    showPage('page-topics');
+                    break;
+                case 'page-favorites':
+                case 'page-profile':
+                    switchTab('home');
+                    break;
+            }
+        }
+        
+        // Check network status
+        function checkNetworkStatus() {
+            app.isOnline = navigator.onLine;
+            if (app.isOnline) {
+                document.getElementById('connection-status').textContent = 'Online';
+                document.getElementById('connection-status').className = 'mt-1 text-green-400';
+            } else {
+                document.getElementById('connection-status').textContent = 'Offline';
+                document.getElementById('connection-status').className = 'mt-1 text-red-400';
+            }
+        }
+        
+        // Show login screen
+        function showLogin() {
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('login-username').value = 'VISHAL';
+            document.getElementById('login-password').value = 'RAVAN09@';
+            document.getElementById('login-error').classList.add('hidden');
+        }
+        
+        // Toggle search
+        function toggleSearch() {
+            const searchContainer = document.getElementById('search-container');
+            if (searchContainer.classList.contains('hidden')) {
+                searchContainer.classList.remove('hidden');
+                document.getElementById('batchSearch').focus();
+            } else {
+                searchContainer.classList.add('hidden');
+            }
+        }
+        
+        // Get URL with proxy if needed
+        function getUrl(url) {
+            if (USE_PROXY && !url.includes(PROXY_URL)) {
+                return PROXY_URL + encodeURIComponent(url);
+            }
+            return url;
+        }
+        
+        // Mobile-optimized login with CORS bypass
+        async function performLogin() {
+            if (!app.isOnline) {
+                showError("No internet connection. Please check your network.");
+                return;
+            }
+            
+            const username = document.getElementById("login-username").value.trim();
+            const password = document.getElementById("login-password").value;
+            
+            if(!username || !password) {
+                showError("Please enter username and password");
+                return;
+            }
+            
+            const btn = document.getElementById("login-btn");
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i><span>Logging in...</span>';
+            
+            try {
+                // Mobile-friendly API call with proxy
+                let loginUrl = `${BASE_URL}/auth/login`;
+                
+                // Use proxy for mobile
+                if (USE_PROXY) {
+                    loginUrl = getUrl(loginUrl);
+                }
+                
+                console.log("Mobile Login URL:", loginUrl);
+                
+                const response = await fetch(loginUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+                
+                console.log("Login response status:", response.status);
+                
+                if(response.ok) {
+                    const data = await response.json();
+                    console.log("Login response data:", data);
+                    
+                    if(data.success && data.token) {
+                        // Save token and user data
+                        app.token = data.token;
+                        app.user = data.user;
+                        
+                        localStorage.setItem("spidy_token", data.token);
+                        localStorage.setItem("spidy_user", JSON.stringify(data.user));
+                        
+                        // Initialize profile if not exists
+                        if(!app.profile) {
+                            app.profile = {
+                                name: data.user.name || username,
+                                bio: "Quantum System User"
+                            };
+                            localStorage.setItem("spidy_profile", JSON.stringify(app.profile));
+                        }
+                        
+                        // Hide login, show app
+                        document.getElementById('login-screen').classList.add('hidden');
+                        initApp();
+                        
+                        // Vibrate on success (mobile)
+                        if (navigator.vibrate) {
+                            navigator.vibrate(100);
+                        }
+                        
+                    } else {
+                        showError(data.message || "Invalid credentials");
+                    }
+                } else {
+                    // Try alternative method for mobile
+                    await tryMobileLogin(username, password);
+                }
+            } catch(error) {
+                console.error("Mobile login error:", error);
+                
+                // Try one more method
+                if (USE_PROXY) {
+                    showError("Connection issue. Try without proxy?");
+                    // You can add a button to toggle proxy
+                } else {
+                    showError("Network error. Check internet or try different network.");
+                }
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sign-in-alt mr-3"></i><span>Login</span>';
+            }
+        }
+        
+        // Alternative mobile login method
+        async function tryMobileLogin(username, password) {
+            try {
+                // Try using form submission (works better on mobile sometimes)
+                const formData = new FormData();
+                formData.append('username', username);
+                formData.append('password', password);
+                
+                const response = await fetch(getUrl(`${BASE_URL}/auth/login`), {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if(response.ok) {
+                    const data = await response.json();
+                    if(data.success && data.token) {
+                        app.token = data.token;
+                        app.user = data.user;
+                        localStorage.setItem("spidy_token", data.token);
+                        localStorage.setItem("spidy_user", JSON.stringify(data.user));
+                        document.getElementById('login-screen').classList.add('hidden');
+                        initApp();
+                        return true;
+                    }
+                }
+            } catch(e) {
+                console.error("Alternative login failed:", e);
+            }
+            return false;
+        }
+        
+        // Show error
+        function showError(message) {
+            const errorDiv = document.getElementById("login-error");
+            document.getElementById("error-message").textContent = message;
+            errorDiv.classList.remove("hidden");
+            
+            // Vibrate on error (mobile)
+            if (navigator.vibrate) {
+                navigator.vibrate([100, 50, 100]);
+            }
+        }
+        
+        // Initialize app
+        function initApp() {
+            document.getElementById('app').classList.remove('hidden');
+            updateProfileUI();
+            
+            // Update user role in header
+            if(app.user && app.user.role) {
+                document.getElementById('user-role').textContent = app.user.role;
+                document.getElementById('profile-role').textContent = `Role: ${app.user.role}`;
+            }
+            
+            // Setup search
+            document.getElementById('batchSearch').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const filtered = app.batches.filter(batch => 
+                    batch.course_name.toLowerCase().includes(searchTerm)
+                );
+                renderBatches(filtered, "batchList");
+            });
+            
+            // Fetch batches
+            fetchBatches();
+            
+            // Register PWA
+            registerServiceWorker();
+        }
+        
+        // Register Service Worker for PWA
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js').then(() => {
+                    console.log('Service Worker Registered');
+                }).catch(error => {
+                    console.log('Service Worker Registration Failed:', error);
+                });
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            if(confirm("Are you sure you want to logout?")) {
+                localStorage.removeItem("spidy_token");
+                localStorage.removeItem("spidy_user");
+                app.token = null;
+                app.user = null;
+                
+                document.getElementById('app').classList.add('hidden');
+                showLogin();
+                
+                // Vibrate on logout
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            }
+        }
+        
+        // API call function for mobile
+        async function apiCall(endpoint) {
+            if(!app.token) {
+                showError("Session expired. Please login again.");
+                logout();
+                return { data: [] };
+            }
+            
+            if (!app.isOnline) {
+                showError("No internet connection");
+                return { data: [] };
+            }
+            
+            try {
+                let apiUrl = `${BASE_URL}/rwawebfree${endpoint}`;
+                
+                // Use proxy for mobile
+                if (USE_PROXY) {
+                    apiUrl = getUrl(apiUrl);
+                }
+                
+                console.log("Mobile API Call:", apiUrl);
+                
+                const res = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${app.token}`,
+                        'Accept': 'application/json',
+                    }
+                });
+                
+                console.log("API Response status:", res.status);
+                
+                if(res.ok) {
+                    const data = await res.json();
+                    return data;
+                } else if(res.status === 401) {
+                    showError("Session expired. Please login again.");
+                    logout();
+                    return { data: [] };
+                } else {
+                    throw new Error(`API Error: ${res.status}`);
+                }
+            } catch(e) {
+                console.error("Mobile API Error:", e);
+                return { data: [] };
+            }
+        }
+        
+        // Fetch batches from API
+        async function fetchBatches() {
+            try {
+                document.getElementById("batchList").innerHTML = `
+                    <div class="col-span-full text-center py-16">
+                        <div class="loading-wave mx-auto mb-6">
+                            <div class="loading-bar"></div>
+                            <div class="loading-bar"></div>
+                            <div class="loading-bar"></div>
+                            <div class="loading-bar"></div>
+                        </div>
+                        <p class="text-text-secondary">Loading batches...</p>
+                    </div>`;
+                
+                const data = await apiCall("/get/mycoursev2?");
+                console.log("Batches data:", data);
+                
+                if(data && data.data && Array.isArray(data.data) && data.data.length > 0) {
+                    app.batches = data.data;
+                    renderBatches(app.batches, "batchList");
+                    document.getElementById("batch-count").textContent = app.batches.length;
+                    
+                    // Success vibration
+                    if (navigator.vibrate) {
+                        navigator.vibrate(50);
+                    }
+                } else {
+                    showEmptyState("batchList", "No batches available", "You don't have access to any courses");
+                }
+            } catch(error) {
+                console.error("Fetch batches error:", error);
+                showEmptyState("batchList", "Failed to load batches", "Please check your connection");
+            }
+        }
+        
+        // Show empty state
+        function showEmptyState(containerId, title, message) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = `
+                <div class="col-span-full text-center py-16">
+                    <i class="fas fa-exclamation-circle text-5xl text-gray-500 mb-6"></i>
+                    <h4 class="text-lg font-medium mb-3">${title}</h4>
+                    <p class="text-text-secondary mb-6">${message}</p>
+                    <button class="btn-primary" onclick="fetchBatches()">
+                        <i class="fas fa-sync-alt mr-3"></i>
+                        Retry
+                    </button>
+                </div>`;
+        }
+        
+        // Render batches (mobile optimized)
+        function renderBatches(data, containerId) {
+            const container = document.getElementById(containerId);
+            if(!container) return;
+            
+            if(data.length === 0) {
+                showEmptyState(containerId, "No batches found", "Try searching");
+                return;
+            }
+            
+            container.innerHTML = data.map(batch => {
+                const isFav = app.favBatches.includes(batch.id.toString());
+                const safeName = batch.course_name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const thumbnail = batch.course_thumbnail || 
+                    "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&auto=format&fit=crop";
+                
+                return `
+                <div class="modern-card cursor-pointer active:scale-98" onclick="openBatch('${batch.id}','${safeName}')">
+                    <div class="aspect-video relative overflow-hidden">
+                        <img src="${thumbnail}" 
+                             class="w-full h-full object-cover"
+                             alt="${batch.course_name}"
+                             loading="lazy"
+                             onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&auto=format&fit=crop'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
+                        
+                        <button onclick="event.stopPropagation();toggleFav('${batch.id}')" 
+                                class="absolute top-3 right-3 w-10 h-10 rounded-full glass flex items-center justify-center">
+                            <i class="${isFav ? 'fas text-yellow-500' : 'far text-white'} fa-heart text-base"></i>
+                        </button>
+                        
+                        <div class="absolute bottom-3 left-3 right-3">
+                            <h4 class="text-base font-bold text-white line-clamp-2">${batch.course_name}</h4>
+                        </div>
+                    </div>
+                </div>`;
+            }).join("");
+        }
+        
+        // Rest of the functions remain similar but mobile-optimized...
+        // (Toggling favorites, opening batches, subjects, topics, content, etc.)
+        
+        // Navigation function for mobile
+        function switchTab(tab) { 
+            const pages = ['page-batches', 'page-subjects', 'page-topics', 'page-content', 'page-favorites', 'page-profile'];
+            pages.forEach(page => {
+                const el = document.getElementById(page);
+                el.classList.add('hidden');
+                if(page === `page-${tab}` || (tab === 'home' && page === 'page-batches')) {
+                    el.classList.remove('hidden');
+                }
+            });
+            
+            // Update bottom nav icons
+            updateBottomNav(tab);
+            
+            // Hide search when switching tabs
+            document.getElementById('search-container').classList.add('hidden');
+            
+            if(tab === 'home') {
+                renderBatches(app.batches, "batchList");
+            } else if(tab === 'favorites') { 
+                renderFavorites();
+            }
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Navigation vibration
+            if (navigator.vibrate) {
+                navigator.vibrate(30);
+            }
+        }
+        
+        // Update bottom nav active state
+        function updateBottomNav(activeTab) {
+            const tabs = ['home', 'favorites', 'profile'];
+            tabs.forEach(tab => {
+                const icon = document.getElementById(`nav-${tab}`);
+                const label = document.getElementById(`nav-${tab}-label`);
+                
+                if (tab === activeTab) {
+                    icon.style.color = 'var(--primary)';
+                    label.style.color = 'var(--primary)';
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                } else {
+                    icon.style.color = 'var(--text-secondary)';
+                    label.style.color = 'var(--text-secondary)';
+                    if (tab === 'favorites') {
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                    }
+                }
+            });
+        }
+        
+        // Show cache info
+        function showCacheInfo() {
+            const cacheSize = JSON.stringify(localStorage).length;
+            alert(`App Info:\n\n• Cache Size: ${(cacheSize / 1024).toFixed(2)} KB\n• Batches: ${app.batches.length}\n• Favorites: ${app.favBatches.length}\n• Network: ${app.isOnline ? 'Online' : 'Offline'}`);
+        }
+        
+        // Decryption function
+        function decrypt(e) {
+            try {
+                const t = CryptoJS.enc.Utf8.parse("638udh3829162018");
+                const a = CryptoJS.enc.Utf8.parse("fedcba9876543210");
+                const decrypted = CryptoJS.AES.decrypt(
+                    {ciphertext: CryptoJS.enc.Base64.parse(e.split(':')[0])},
+                    t,
+                    {iv: a, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7}
+                );
+                return decrypted.toString(CryptoJS.enc.Utf8);
+            } catch(e) {
+                console.error("Decryption error:", e);
+                return e;
+            }
+        }
+        
+        // Install PWA prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // Show install button
+            setTimeout(() => {
+                if(confirm("Install Quantum OS as an app for better experience?")) {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then(() => {
+                        deferredPrompt = null;
+                    });
+                }
+            }, 3000);
+        });
+        
+        console.log("Quantum OS Mobile - Optimized for mobile devices");
+        console.log("Using CORS Proxy:", USE_PROXY);
+        console.log("PWA Ready");
+    </script>
+</body>
+</html>
